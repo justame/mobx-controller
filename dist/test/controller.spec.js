@@ -2,13 +2,11 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+require('jsdom-global/register');
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _jsdomGlobal = require('jsdom-global');
-
-var _jsdomGlobal2 = _interopRequireDefault(_jsdomGlobal);
 
 var _reactDom = require('react-dom');
 
@@ -24,7 +22,9 @@ var _chai = require('chai');
 
 var _mobxReact = require('mobx-react');
 
-var _index = require('../src/index');
+var _controller = require('../src/controller');
+
+var _controller2 = _interopRequireDefault(_controller);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -47,10 +47,9 @@ var MyCtrl = function MyCtrl() {
 
 describe('inject based context', function () {
   describe('basic context', function () {
-    (0, _jsdomGlobal2.default)();
 
     it('should pass controller via props', function () {
-      var C = (0, _index.controller)('myCtrl', MyCtrl)((0, _mobxReact.observer)(function (_React$Component) {
+      var C = (0, _controller2.default)('myCtrl', MyCtrl)((0, _mobxReact.observer)(function (_React$Component) {
         _inherits(MyComponent, _React$Component);
 
         function MyComponent() {

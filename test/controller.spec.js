@@ -1,12 +1,12 @@
 /* eslint-disable */
+import 'jsdom-global/register';
 import React, {createClass, PropTypes} from 'react';
-import jsdom from 'jsdom-global';
 import ReactDOM from 'react-dom';
 import {mount} from 'enzyme';
 import mobx, {action, observable, computed} from 'mobx';
 import {expect} from 'chai';
 import {Provider, observer} from 'mobx-react';
-import {controller} from '../src/index';
+import controller from '../src/controller';
 // import sinon from 'sinon';
 
 class MyCtrl {
@@ -19,7 +19,7 @@ class MyCtrl {
 
 describe('inject based context', () => {
   describe('basic context', () => {
-    jsdom();
+    
 
     it('should pass controller via props', () => {
       const C = controller('myCtrl', MyCtrl)(observer(class MyComponent extends React.Component {

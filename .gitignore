@@ -1,0 +1,12 @@
+node_modules
+target
+coverage
+typings
+maven
+.DS_Store
+*.vim
+.vscode
+npm-debug.log
+.history
+*.private.json
+*.private.js

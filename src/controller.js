@@ -8,7 +8,11 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
   class ControllerHOC extends React.Component {
     controller;
     componentWillMount() {
-      this.controller = new Ctrl(this.props.stores);
+      if (this.props[ctrlName]) {
+        this.controller = new this.props[ctrlName](this.props.stores);
+      } else {
+        this.controller = new Ctrl(this.props.stores);
+      }
     }
     componentWillUnmount() {
       if (this.controller.$destroy) {
@@ -31,7 +35,7 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
           }
         }
       } else {
-        newProps[ctrlName] = this.props[ctrlName] || this.controller;
+        newProps[ctrlName] = this.controller;
       }
       return React.createElement(ComponentClass, newProps);
     }

@@ -16,6 +16,7 @@ class DemoStore {
 
 class DemoCtrl {
   constructor({demoStore}) {
+    console.log('constrctor');
     this.demoStore = demoStore;
   }
 
@@ -26,6 +27,10 @@ class DemoCtrl {
   @action changeName() {
     this.demoStore.user.name = 'moshe';
   }
+
+  @action changeAge() {
+    this.demoStore.user.age = 19;
+  }
 }
 
 @controller('demoCtrl', DemoCtrl)
@@ -35,18 +40,27 @@ class Demo extends React.Component {
     const {demoCtrl} = this.props;
     return (<div>
       Hello {demoCtrl.user.name}
+      Hello {demoCtrl.user.age}
       <button onClick={() => demoCtrl.changeName()}>
+        Click
+      </button>
+      <button onClick={() => demoCtrl.changeAge()}>
         Click
       </button>
     </div>);
   }
 }
 
+Demo.originalComponent.propTypes = {
+  demoCtrl: React.PropTypes.object.isRequired,
+};
+
 function mapper(ctrl, ownProps) {
   console.log(ctrl, ownProps);
   return {
     user: ctrl.user,
-    changeName: () => ctrl.changeName()
+    changeName: () => ctrl.changeName(),
+    changeAge: () => ctrl.changeAge()
   };
 }
 

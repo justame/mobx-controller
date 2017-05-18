@@ -37,13 +37,20 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
     }
   }
   hoistStatics(ControllerHOC, ComponentClass);
-  ControllerHOC.wrappedComponent = ComponentClass;
+
   ControllerHOC.propTypes = {
     stores: PropTypes.object.isRequired
   };
-  return props => {
-    return <ControllerHOC {...props}><ComponentClass/></ControllerHOC>;
+
+  const WrapperHOC = props => {
+    return React.createElement(ControllerHOC, props);
   };
+
+  WrapperHOC.originalComponent = ComponentClass;
+
+
+
+  return WrapperHOC;
 }
 
 export default function controller(ctrlName, Ctrl, mapper) {

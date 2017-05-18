@@ -1,42 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {observable, computed, action, useStrict, toJS} from 'mobx';
+import {observable, computed, action, useStrict} from 'mobx';
 import {Provider, observer} from 'mobx-react';
 import controller from './controller';
 
 useStrict(true);
 
-class DemoStore {
-  @observable user = {
-    name: 'Yaron Nachshon',
-    age: 18,
-    country: 'Israel'
-  };
-}
 
-class DemoCtrl {
-  constructor({demoStore}) {
-    console.log('constrctor');
-    this.demoStore = demoStore;
-  }
 
-  @computed get user() {
-    return this.demoStore.user;
-  }
 
-  @action changeName() {
-    this.demoStore.user.name = 'moshe';
-  }
 
-  @action changeAge() {
-    this.demoStore.user.age = 19;
-  }
-}
-
-@controller('demoCtrl', DemoCtrl)
+@controller('demoCtrl', DemoCtrl, mapper)
 @observer
 class Demo extends React.Component {
   render() {
+    console.log('render');
     const {demoCtrl} = this.props;
     return (<div>
       Hello {demoCtrl.user.name}
@@ -56,11 +34,12 @@ Demo.originalComponent.propTypes = {
 };
 
 function mapper(ctrl, ownProps) {
-  console.log(ctrl, ownProps);
+  console.log(ownProps);
   return {
     user: ctrl.user,
     changeName: () => ctrl.changeName(),
-    changeAge: () => ctrl.changeAge()
+    changeAge: () => ctrl.changeAge(),
+    demoCtrl: ctrl
   };
 }
 
@@ -71,7 +50,7 @@ const stores = {
 };
 ReactDOM.render(
   <Provider {...stores}>
-    <Demo/>
+    <Demo test="yaron"/>
   </Provider>,
     document.getElementById('root')
   );

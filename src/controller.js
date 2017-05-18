@@ -23,7 +23,7 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
     render() {
       const newProps = {};
       for (const key in this.props) {
-        if (Object.prototype.hasOwnProperty.call(this.props, key)) {
+        if (key !== 'stores' && Object.prototype.hasOwnProperty.call(this.props, key)) {
           newProps[key] = this.props[key];
         }
       }
@@ -37,6 +37,7 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
       } else {
         newProps[ctrlName] = this.controller;
       }
+
       return React.createElement(ComponentClass, newProps);
     }
   }
@@ -51,8 +52,6 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
   };
 
   WrapperHOC.originalComponent = ComponentClass;
-
-
 
   return WrapperHOC;
 }

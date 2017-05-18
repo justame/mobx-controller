@@ -16,9 +16,11 @@ var _hoistNonReactStatics = require('hoist-non-react-statics');
 
 var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
-var _mobx = require('mobx');
-
 var _mobxReact = require('mobx-react');
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26,65 +28,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint-disable */
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
+  var ControllerHOC = function (_React$Component) {
+    _inherits(ControllerHOC, _React$Component);
 
-var injectorContextTypes = {
-  mobxStores: _mobxReact.PropTypes.objectOrObservableObject
-};
-Object.seal(injectorContextTypes);
+    function ControllerHOC() {
+      _classCallCheck(this, ControllerHOC);
 
-var proxiedInjectorProps = {
-  contextTypes: {
-    get: function get() {
-      return injectorContextTypes;
-    },
-    set: function set(_) {
-      console.warn('Mobx Injector: you are trying to attach `contextTypes` on an component decorated with `inject` (or `observer`) HOC. Please specify the contextTypes on the wrapped component instead. It is accessible through the `wrappedComponent`');
-    },
-
-    configurable: true,
-    enumerable: false
-  },
-  isMobxInjector: {
-    value: true,
-    writable: true,
-    configurable: true,
-    enumerable: true
-  }
-};
-
-/**
- * Store Injection
- */
-function createStoreInjector(ctrlName, Ctrl, component, mapper) {
-  var _class, _temp2;
-
-  var displayName = 'inject-' + (component.displayName || component.name || component.constructor && component.constructor.name || 'Unknown');
-
-  var Injector = (_temp2 = _class = function (_Component) {
-    _inherits(Injector, _Component);
-
-    function Injector() {
-      var _ref;
-
-      var _temp, _this, _ret;
-
-      _classCallCheck(this, Injector);
-
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Injector.__proto__ || Object.getPrototypeOf(Injector)).call.apply(_ref, [this].concat(args))), _this), _this.storeRef = function (instance) {
-        _this.wrappedInstance = instance;
-      }, _temp), _possibleConstructorReturn(_this, _ret);
+      return _possibleConstructorReturn(this, (ControllerHOC.__proto__ || Object.getPrototypeOf(ControllerHOC)).apply(this, arguments));
     }
 
-    _createClass(Injector, [{
+    _createClass(ControllerHOC, [{
       key: 'componentWillMount',
       value: function componentWillMount() {
-        this.controller = new Ctrl(this.context.mobxStores);
+        if (this.props[ctrlName]) {
+          this.controller = new this.props[ctrlName](this.props.stores);
+        } else {
+          this.controller = new Ctrl(this.props.stores);
+        }
       }
     }, {
       key: 'componentWillUnmount',
@@ -97,108 +60,49 @@ function createStoreInjector(ctrlName, Ctrl, component, mapper) {
     }, {
       key: 'render',
       value: function render() {
-        // Optimization: it might be more efficient to apply the mapper function *outside* the render method
-        // (if the mapper is a function), that could avoid expensive(?) re-rendering of the injector component
-        // See this test: 'using a custom injector is not too reactive' in inject.js
         var newProps = {};
         for (var key in this.props) {
-          if (this.props.hasOwnProperty(key)) {
+          if (key !== 'stores' && Object.prototype.hasOwnProperty.call(this.props, key)) {
             newProps[key] = this.props[key];
           }
         }
-        var additionalProps = {};
-
         if (typeof mapper === 'function') {
-          additionalProps = mapper(this.controller, this.props);
+          var additionalProps = mapper(this.controller, newProps);
+          for (var _key in additionalProps) {
+            if (!Object.prototype.hasOwnProperty.call(this.props, _key)) {
+              newProps[_key] = additionalProps[_key];
+            }
+          }
         } else {
-          additionalProps = (this.context.mobxStores || {}, newProps, this.context) || {};
-          additionalProps[ctrlName] = this.controller;
+          newProps[ctrlName] = this.controller;
         }
 
-        for (var _key2 in additionalProps) {
-          newProps[_key2] = additionalProps[_key2];
-        }
-        newProps.ref = this.storeRef;
-
-        return _react2.default.createElement((0, _mobxReact.observer)(component), newProps);
+        return _react2.default.createElement(ComponentClass, newProps);
       }
     }]);
 
-    return Injector;
-  }(_react.Component), _class.displayName = displayName, _temp2);
+    return ControllerHOC;
+  }(_react2.default.Component);
 
-  // Static fields from component should be visible on the generated Injector
+  (0, _hoistNonReactStatics2.default)(ControllerHOC, ComponentClass);
 
-  (0, _hoistNonReactStatics2.default)(Injector, component);
+  ControllerHOC.propTypes = {
+    stores: _propTypes2.default.object.isRequired
+  };
 
-  Injector.wrappedComponent = component;
-  Object.defineProperties(Injector, proxiedInjectorProps);
+  var WrapperHOC = function WrapperHOC(props) {
+    return _react2.default.createElement(ControllerHOC, props);
+  };
 
-  return Injector;
+  WrapperHOC.originalComponent = ComponentClass;
+
+  return WrapperHOC;
 }
 
-/**
- * higher order component that injects stores to a child.
- * takes either a varargs list of strings, which are stores read from the context,
- * or a function that manually maps the available stores from the context to props:
- * storesToProps(mobxStores, props, context) => newProps
- */
 function controller(ctrlName, Ctrl, mapper) {
-
-  function getWrapper(ComponentClass) {
-    var MyWrapper = function (_React$Component) {
-      _inherits(MyWrapper, _React$Component);
-
-      function MyWrapper() {
-        _classCallCheck(this, MyWrapper);
-
-        return _possibleConstructorReturn(this, (MyWrapper.__proto__ || Object.getPrototypeOf(MyWrapper)).apply(this, arguments));
-      }
-
-      _createClass(MyWrapper, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-          this.controller = new Ctrl(this.props.stores.stores);
-        }
-      }, {
-        key: 'render',
-        value: function render() {
-          // console.log(this.props.stores)
-          var newProps = {};
-          for (var key in this.props) {
-            if (this.props.hasOwnProperty(key)) {
-              newProps[key] = this.props[key];
-            }
-          }
-          newProps[ctrlName] = this.controller;
-          return _react2.default.createElement(ComponentClass, newProps);
-        }
-      }]);
-
-      return MyWrapper;
-    }(_react2.default.Component);
-
-    return function (stores) {
-      return _react2.default.createElement(
-        MyWrapper,
-        { stores: stores },
-        _react2.default.createElement(ComponentClass, null)
-      );
-    };
-  }
-
-  // return inject((stores) => {
-  //   if(typeof mapper === 'function'){
-  //     return mapper()
-  //   }
-  //   return {
-  //     [ctrlName]: new Ctrl(stores)
-  //   }
-  // })
   return function (componentClass) {
     return (0, _mobxReact.inject)(function (stores) {
       return { stores: stores };
-    })(getWrapper(componentClass));
-    // return createStoreInjector(ctrlName, Ctrl, componentClass, mapper);
+    })(getHOC(ctrlName, Ctrl, componentClass, mapper));
   };
 }

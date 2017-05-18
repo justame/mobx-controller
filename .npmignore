@@ -10,5 +10,4 @@ npm-debug.log
 .history
 *.private.json
 *.private.js
-dist/**
 .vscode/**

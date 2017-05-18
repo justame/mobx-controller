@@ -21,7 +21,7 @@
     "start": "yoshi start --entry-point=./test/mock/start-fake-server.js",
     "pretest": "yoshi lint && yoshi build",
     "build": ":",
-    "test": "yoshi test",
+    "test": "yoshi test --mocha",
     "release": "yoshi release"
   },
   "yoshi": {
@@ -36,7 +36,6 @@
     "enzyme": "^2.8.2",
     "express": "^4.13.4",
     "express-session": "^1.14.2",
-    "jsdom": "10.1.0",
     "jsdom-global": "3.0.2",
     "react-test-renderer": "^15.5.4",
     "require-reload": "^0.2.2",

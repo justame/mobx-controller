@@ -1,7 +1,9 @@
 /* eslint-disable */
 import React, {Component} from 'react';
 import hoistStatics from 'hoist-non-react-statics';
-import {PropTypes} from 'mobx-react';
+import {reaction, autorun} from 'mobx';
+import {PropTypes, observer, inject} from 'mobx-react';
+
 
 const injectorContextTypes = {
   mobxStores: PropTypes.objectOrObservableObject
@@ -30,7 +32,7 @@ const proxiedInjectorProps = {
 /**
  * Store Injection
  */
-function createStoreInjector(ctrlName, Ctrl, component) {
+function createStoreInjector(ctrlName, Ctrl, component, mapper) {
   const displayName = 'inject-' + (component.displayName || component.name || (component.constructor && component.constructor.name) || 'Unknown');
 
   class Injector extends Component {
@@ -62,14 +64,21 @@ function createStoreInjector(ctrlName, Ctrl, component) {
           newProps[key] = this.props[key];
         }
       }
-      const additionalProps = (this.context.mobxStores || {}, newProps, this.context) || {};
+      let additionalProps = {};
+      
+      if(typeof mapper === 'function'){
+        additionalProps = mapper(this.controller, this.props);
+      }else{
+        additionalProps = (this.context.mobxStores || {}, newProps, this.context) || {};
+        additionalProps[ctrlName] = this.controller;
+      }
+
       for (const key in additionalProps) {
         newProps[key] = additionalProps[key];
       }
       newProps.ref = this.storeRef;
-      newProps[ctrlName] = this.controller;
 
-      return React.createElement(component, newProps);
+      return React.createElement(observer(component), newProps);
     }
   }
 
@@ -82,32 +91,52 @@ function createStoreInjector(ctrlName, Ctrl, component) {
   return Injector;
 }
 
-
-// function grabStoresByName(storeNames) {
-//   return function (baseStores, nextProps) {
-//     storeNames.forEach(storeName => {
-//       if (storeName in nextProps) // prefer props over stores
-//         {
-//         return;
-//       }
-//       if (!(storeName in baseStores)) {
-//         throw new Error('MobX observer: Store \'' + storeName + '\' is not available! Make sure it is provided by some Provider');
-//       }
-//       nextProps[storeName] = baseStores[storeName];
-//     });
-//     return nextProps;
-//   };
-// }
-
 /**
  * higher order component that injects stores to a child.
  * takes either a varargs list of strings, which are stores read from the context,
  * or a function that manually maps the available stores from the context to props:
  * storesToProps(mobxStores, props, context) => newProps
  */
-export default function controller(ctrlName, Ctrl) {
+export default function controller(ctrlName, Ctrl, mapper) {
+
+
+  function getWrapper(ComponentClass){
+    class MyWrapper extends React.Component{
+      controller;
+      componentWillMount(){
+        this.controller = new Ctrl(this.props.stores.stores);
+      }
+      render(){
+        // console.log(this.props.stores)
+      const newProps = {};
+      for (const key in this.props) {
+        if (this.props.hasOwnProperty(key)) {
+          newProps[key] = this.props[key];
+        }
+      }
+      newProps[ctrlName] = this.controller;
+      return React.createElement(ComponentClass, newProps);
+      
+      }
+    }    
+    return (stores)=> {
+      return <MyWrapper stores={stores}><ComponentClass/></MyWrapper>
+    }
+  }
+
+  // return inject((stores) => {
+  //   if(typeof mapper === 'function'){
+  //     return mapper()
+  //   }
+  //   return {
+  //     [ctrlName]: new Ctrl(stores)
+  //   }
+  // })
   return function (componentClass) {
-    return createStoreInjector(ctrlName, Ctrl, componentClass);
+    return inject(stores => {
+      return {stores}
+    })(getWrapper(componentClass))
+    // return createStoreInjector(ctrlName, Ctrl, componentClass, mapper);
   };
 
 }

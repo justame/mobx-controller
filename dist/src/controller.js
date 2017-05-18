@@ -16,6 +16,8 @@ var _hoistNonReactStatics = require('hoist-non-react-statics');
 
 var _hoistNonReactStatics2 = _interopRequireDefault(_hoistNonReactStatics);
 
+var _mobx = require('mobx');
+
 var _mobxReact = require('mobx-react');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -55,10 +57,12 @@ var proxiedInjectorProps = {
 /**
  * Store Injection
  */
-function createStoreInjector(ctrlName, Ctrl, component) {
+function createStoreInjector(ctrlName, Ctrl, component, mapper) {
+  var _class, _temp2;
+
   var displayName = 'inject-' + (component.displayName || component.name || component.constructor && component.constructor.name || 'Unknown');
 
-  var Injector = function (_Component) {
+  var Injector = (_temp2 = _class = function (_Component) {
     _inherits(Injector, _Component);
 
     function Injector() {
@@ -102,24 +106,29 @@ function createStoreInjector(ctrlName, Ctrl, component) {
             newProps[key] = this.props[key];
           }
         }
-        var additionalProps = (this.context.mobxStores || {}, newProps, this.context) || {};
+        var additionalProps = {};
+
+        if (typeof mapper === 'function') {
+          additionalProps = mapper(this.controller, this.props);
+        } else {
+          additionalProps = (this.context.mobxStores || {}, newProps, this.context) || {};
+          additionalProps[ctrlName] = this.controller;
+        }
+
         for (var _key2 in additionalProps) {
           newProps[_key2] = additionalProps[_key2];
         }
         newProps.ref = this.storeRef;
-        newProps[ctrlName] = this.controller;
 
-        return _react2.default.createElement(component, newProps);
+        return _react2.default.createElement((0, _mobxReact.observer)(component), newProps);
       }
     }]);
 
     return Injector;
-  }(_react.Component);
+  }(_react.Component), _class.displayName = displayName, _temp2);
 
   // Static fields from component should be visible on the generated Injector
 
-
-  Injector.displayName = displayName;
   (0, _hoistNonReactStatics2.default)(Injector, component);
 
   Injector.wrappedComponent = component;
@@ -128,30 +137,68 @@ function createStoreInjector(ctrlName, Ctrl, component) {
   return Injector;
 }
 
-// function grabStoresByName(storeNames) {
-//   return function (baseStores, nextProps) {
-//     storeNames.forEach(storeName => {
-//       if (storeName in nextProps) // prefer props over stores
-//         {
-//         return;
-//       }
-//       if (!(storeName in baseStores)) {
-//         throw new Error('MobX observer: Store \'' + storeName + '\' is not available! Make sure it is provided by some Provider');
-//       }
-//       nextProps[storeName] = baseStores[storeName];
-//     });
-//     return nextProps;
-//   };
-// }
-
 /**
  * higher order component that injects stores to a child.
  * takes either a varargs list of strings, which are stores read from the context,
  * or a function that manually maps the available stores from the context to props:
  * storesToProps(mobxStores, props, context) => newProps
  */
-function controller(ctrlName, Ctrl) {
+function controller(ctrlName, Ctrl, mapper) {
+
+  function getWrapper(ComponentClass) {
+    var MyWrapper = function (_React$Component) {
+      _inherits(MyWrapper, _React$Component);
+
+      function MyWrapper() {
+        _classCallCheck(this, MyWrapper);
+
+        return _possibleConstructorReturn(this, (MyWrapper.__proto__ || Object.getPrototypeOf(MyWrapper)).apply(this, arguments));
+      }
+
+      _createClass(MyWrapper, [{
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+          this.controller = new Ctrl(this.props.stores.stores);
+        }
+      }, {
+        key: 'render',
+        value: function render() {
+          // console.log(this.props.stores)
+          var newProps = {};
+          for (var key in this.props) {
+            if (this.props.hasOwnProperty(key)) {
+              newProps[key] = this.props[key];
+            }
+          }
+          newProps[ctrlName] = this.controller;
+          return _react2.default.createElement(ComponentClass, newProps);
+        }
+      }]);
+
+      return MyWrapper;
+    }(_react2.default.Component);
+
+    return function (stores) {
+      return _react2.default.createElement(
+        MyWrapper,
+        { stores: stores },
+        _react2.default.createElement(ComponentClass, null)
+      );
+    };
+  }
+
+  // return inject((stores) => {
+  //   if(typeof mapper === 'function'){
+  //     return mapper()
+  //   }
+  //   return {
+  //     [ctrlName]: new Ctrl(stores)
+  //   }
+  // })
   return function (componentClass) {
-    return createStoreInjector(ctrlName, Ctrl, componentClass);
+    return (0, _mobxReact.inject)(function (stores) {
+      return { stores: stores };
+    })(getWrapper(componentClass));
+    // return createStoreInjector(ctrlName, Ctrl, componentClass, mapper);
   };
 }

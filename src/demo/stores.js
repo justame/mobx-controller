@@ -1,4 +1,4 @@
-import {observable, computed, action, useStrict} from 'mobx';
+import {observable, action} from 'mobx';
 
 class DemoStore {
   @observable user ={

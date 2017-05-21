@@ -108,4 +108,3 @@ function controller(ctrlName, Ctrl, mapper) {
     })(getHOC(ctrlName, Ctrl, componentClass, mapper));
   };
 }
-//# sourceMappingURL=controller.js.map

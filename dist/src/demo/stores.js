@@ -86,3 +86,4 @@ function getStores() {
     demoStore: new DemoStore()
   };
 }
+//# sourceMappingURL=stores.js.map

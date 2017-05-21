@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {observer} from 'mobx-react';
 import DemoCtrl from './demo.controller';
-import controller from '../controller';
+import {controller} from '../index';
 
 @controller('demoCtrl', DemoCtrl)
 @observer

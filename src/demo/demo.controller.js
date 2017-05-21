@@ -1,6 +1,8 @@
-import {computed, action} from 'mobx';
+import {computed, action, observable} from 'mobx';
 
-class DemoCtrl {
+export default class DemoCtrl {
+  @observable isChangingName = false;
+
   constructor({demoStore}) {
     this.demoStore = demoStore;
   }
@@ -9,11 +11,11 @@ class DemoCtrl {
     return this.demoStore.user;
   }
 
-  @action changeName() {
-    this.demoStore.user.name = 'moshe';
-  }
-
-  @action changeAge() {
-    this.demoStore.user.age = 19;
+  @action changeName(name) {
+    this.isChangingName = true;
+    setTimeout(action(() => {
+      this.demoStore.changeName(name);
+      this.isChangingName = false;
+    }), 1500);
   }
 }

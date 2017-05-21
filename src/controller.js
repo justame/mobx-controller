@@ -15,8 +15,8 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
       }
     }
     componentWillUnmount() {
-      if (this.controller.$destroy) {
-        this.controller.$destroy();
+      if (this.controller.$onDestroy) {
+        this.controller.$onDestroy();
       }
       this.controller = null;
     }

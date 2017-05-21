@@ -93,4 +93,3 @@ var DemoCtrl = (_class = function () {
   }
 }), _applyDecoratedDescriptor(_class.prototype, 'user', [_mobx.computed], Object.getOwnPropertyDescriptor(_class.prototype, 'user'), _class.prototype), _applyDecoratedDescriptor(_class.prototype, 'changeName', [_mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, 'changeName'), _class.prototype)), _class);
 exports.default = DemoCtrl;
-//# sourceMappingURL=demo.controller.js.map

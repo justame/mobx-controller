@@ -5,8 +5,24 @@ import {expect} from 'chai';
 import PropTypes from 'prop-types';
 import {observable, expr, action} from 'mobx';
 import {Provider, observer} from 'mobx-react';
-import controller from '../controller';
+import controller from './controller';
 
+
+const jsdom = require('jsdom').jsdom;
+
+global.document = jsdom('');
+global.window = document.defaultView;
+global.navigator = {
+  userAgent: 'node.js'
+};
+
+function copyProps(src, target) {
+  const props = Object.getOwnPropertyNames(src)
+    .filter(prop => typeof target[prop] === 'undefined')
+    .map(prop => Object.getOwnPropertyDescriptor(src, prop));
+  Object.defineProperties(target, props);
+}
+copyProps(document.defaultView, global);
 
 describe('Controller', () => {
   it('should pass controller in props', () => {

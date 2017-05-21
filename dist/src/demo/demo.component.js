@@ -22,9 +22,7 @@ var _demo = require('./demo.controller');
 
 var _demo2 = _interopRequireDefault(_demo);
 
-var _controller = require('../controller');
-
-var _controller2 = _interopRequireDefault(_controller);
+var _index = require('../index');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34,7 +32,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Demo = (_dec = (0, _controller2.default)('demoCtrl', _demo2.default), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+var Demo = (_dec = (0, _index.controller)('demoCtrl', _demo2.default), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
   _inherits(Demo, _React$Component);
 
   function Demo() {

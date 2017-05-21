@@ -18,19 +18,19 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var jsdom = require('jsdom').jsdom;
+// const jsdom = require('jsdom').jsdom;
 
-global.document = jsdom('');
-global.window = document.defaultView;
-Object.keys(document.defaultView).forEach(function (property) {
-  if (typeof global[property] === 'undefined') {
-    global[property] = document.defaultView[property];
-  }
-});
+// global.document = jsdom('');
+// global.window = document.defaultView;
+// Object.keys(document.defaultView).forEach(property => {
+//   if (typeof global[property] === 'undefined') {
+//     global[property] = document.defaultView[property];
+//   }
+// });
 
-global.navigator = {
-  userAgent: 'node.js'
-};
+// global.navigator = {
+//   userAgent: 'node.js'
+// };
 
 (0, _wixAxiosConfig.wixAxiosConfig)(_axios2.default, { baseURL: (0, _testCommon.getTestBaseUrl)() });
 _axios2.default.defaults.adapter = httpAdapter.default;

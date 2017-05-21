@@ -31,7 +31,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
-  var ControllerHOC = function (_React$Component) {
+  var _class, _temp;
+
+  var ControllerHOC = (_temp = _class = function (_React$Component) {
     _inherits(ControllerHOC, _React$Component);
 
     function ControllerHOC() {
@@ -82,7 +84,7 @@ function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
     }]);
 
     return ControllerHOC;
-  }(_react2.default.Component);
+  }(_react2.default.Component), _class.displayName = 'controller ' + ctrlName, _temp);
 
   (0, _hoistNonReactStatics2.default)(ControllerHOC, ComponentClass);
 
@@ -106,3 +108,4 @@ function controller(ctrlName, Ctrl, mapper) {
     })(getHOC(ctrlName, Ctrl, componentClass, mapper));
   };
 }
+//# sourceMappingURL=controller.js.map

@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 
 function getHOC(ctrlName, Ctrl, ComponentClass, mapper) {
   class ControllerHOC extends React.Component {
+    static displayName = `controller ${ctrlName}`;
+
     controller;
     componentWillMount() {
       if (this.props[ctrlName]) {
